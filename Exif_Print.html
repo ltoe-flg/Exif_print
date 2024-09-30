@@ -1,0 +1,132 @@
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+
+<body>
+    <input name="myfile" type="file" accept=".png,.jpg" onchange="fileup(this)"/>
+    <button py-click="clicked()" id="button">Exif付与</button><br>
+    <hr>
+    <div>
+        <img id="img"/>
+    </div>
+    <py-config>
+        packages = ["Pillow","opencv-python","numpy"]
+    </py-config>
+    <py-script>
+        from PIL import Image
+        from PIL.ExifTags import TAGS, GPSTAGS
+        import cv2 as cv
+        import numpy as np
+        import base64
+        from io import BytesIO
+
+        pic_info = ['DateTimeOriginal','Model','LensModel','FNumber','ExposureTime','ISOSpeedRatings','FocalLength']
+
+        def load_exif(path):
+            ifd_dict ={}
+            img = Image.open(BytesIO(path))
+            exif = img.getexif()
+            
+            #{タグID：値}の辞書を{タグ名：値}の辞書に変換
+            for tag_id, value in exif.items():
+                try:
+                    ifd_dict.update({TAGS[tag_id]:value})
+                except:
+                    ifd_dict.update({tag_id:value})
+            for tag_id, value in exif.get_ifd(0x8769).items():
+                try:
+                    ifd_dict.update({TAGS[tag_id]:value})
+                except:
+                    ifd_dict.update({tag_id:value})
+        
+            return ifd_dict
+        
+        def caption(exf_dic):
+            cap=['','','']
+            for i, tag in enumerate(pic_info):
+                try:
+                    v=exf_dic[pic_info[i]]
+                except:
+                    v='-'
+                if i==0:
+                    if v!='-':
+                        cap[2]='{0[0]}/{0[1]}/{0[2]}'.format(v.split()[0].split(':'))
+                    else:
+                        cap[2]=v
+                elif i==1 or i==2:
+                    cap[1]+=v+' '
+                elif i==3:
+                    cap[0]='F' + str(v)
+                elif i==4:
+                    if v=='-':
+                        cap[0] += '  SS' + v
+                    elif v < 1:
+                        cap[0] += '  SS1/' + str(1/v)
+                    else:
+                        cap[0] += '  SS' + str(v)
+                elif i==5:
+                    cap[0] += '  ISO' + str(v)
+                elif i==6:
+                    cap[0] += '  L' + str(v) +'mm'
+            return cap
+        
+        def clicked():
+            my_input=Element('img')
+            img_binary = base64.b64decode(my_input.element.src[23:])
+            img_b64 = exif_print(img_binary)
+            my_input.element.src='data:image/jpeg;base64,' + img_b64
+        
+        def exif_print(path):
+            jpg = np.frombuffer(path,dtype=np.uint8)
+            img = cv.imdecode(jpg, cv.IMREAD_COLOR)
+        
+            ifd_dict = load_exif(path)
+            text_l = caption(ifd_dict)
+        
+            h=img.shape[0]
+            face=cv.FONT_HERSHEY_SIMPLEX
+            if h < 1080:
+                fscale = int(1080*0.015)
+            else:
+                fscale = int(h*0.015)
+            
+            fratio = cv.getFontScaleFromHeight(face, fscale, 2)
+        
+            if fratio < 0.5:
+                thickness = 1
+                outline = 2
+            elif 0.5 <= fratio and fratio < 1:
+                thickness = 2
+                outline = 4
+            else:
+                thickness = 3
+                outline = 6
+            size, baseline = cv.getTextSize('A', face, fratio, thickness)
+            ubase = fscale - baseline
+        
+            for i,n in enumerate(text_l):
+                cv.putText(img, n, (ubase + 3, h-((fscale + ubase) * i + ubase + 3)), face, fratio, (64, 64, 64), thickness + outline, cv.LINE_AA)
+                cv.putText(img, n, (ubase + 3, h-((fscale + ubase) * i + ubase + 3)), face, fratio, (255, 255, 255), thickness, cv.LINE_AA)
+            
+            encord_param = [int(cv.IMWRITE_JPEG_QUALITY),90]
+            retval, buf = cv.imencode('.jpg', img, encord_param)
+            img_str = base64.b64encode(buf).decode('ascii')
+            return img_str
+    </py-script>
+    <script>
+        const fileup = (e) => {
+            const img = document.getElementById('img');
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                img.src = reader.result;
+            }
+            reader.readAsDataURL(e.files[0]);
+        }
+    </script>
+</body>
+
+</html>
