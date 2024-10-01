@@ -39,12 +39,20 @@
             color: black;
             border-radius: 7px;
         }
+        .btn.btn:active{
+            background: rgb(172, 172, 172);
+        }
     </style>
 </head>
 
 <body>
     <input name="myfile" type="file" accept=".png,.jpg" onchange="fileup(this)" class="file-button"/>
-    <a href="#" class="btn" py-click="clicked()" id="button">Exif付与</a>
+    <a href="#" class="btn" py-click="clicked()" id="button">Exif付与</a><br>
+    ※ファイルを選択して画像が表示されてから”Exif付与"を一回押してください、ボタンの色が元に戻ると左下にExif情報が追加されています、保存してお使いください。元の写真には影響ありません。<br>
+    何かエラーが出たらブラウザを更新してください。<br>
+    スマホの場合に起こる現象(10/2時点)<br>
+    ・画像サイズが縮小されます<br>
+    ・元画像のサイズが大きいとメニューに保存が表示されません、共有からSNSにそのままアップロードは可能のようです。<br>
     <hr>
     <div>
         <img id="img"/>
