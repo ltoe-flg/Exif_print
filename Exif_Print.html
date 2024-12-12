@@ -62,6 +62,8 @@
         <img id="img"/>
     </div>
     <py-script>
+        import micropip
+        await micropip.install('pillow')
         from PIL import Image
         from PIL.ExifTags import TAGS, GPSTAGS
         import cv2 as cv
