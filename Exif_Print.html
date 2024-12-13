@@ -51,7 +51,7 @@
 
 <body>
     <input name="myfile" type="file" accept=".png,.jpg" onchange="fileup(this)" class="file-button"/>
-    <a href="#" class="btn" py-click="clicked()" id="button">Exif付与</a><br>
+    <a href="#" class="btn" id="button">Exif付与</a><br>
     ※ファイルを選択して画像が表示されてから”Exif付与"を一回押してください、ボタンの色が元に戻ると左下にExif情報が追加されています、保存してお使いください。元の写真には影響ありません。<br>
     何かエラーが出たらブラウザを更新してください。<br>
     スマホの場合に起こる現象(10/2時点)<br>
@@ -62,17 +62,20 @@
         <img id="img"/>
     </div>
     <py-config>
-        packages = ["micropip","Pillow","opencv-python","numpy"]
+    {
+        "packages" : ["Pillow","opencv-python","numpy"]
+    }
     </py-config>
     <py-script>
-        import micropip
-        await micropip.install('pillow')
         from PIL import Image
         from PIL.ExifTags import TAGS, GPSTAGS
         import cv2 as cv
         import numpy as np
         import base64
         from io import BytesIO
+        import sys
+        from pyscript import when, display
+        from pyscript.web import img, page
 
         pic_info = ['DateTimeOriginal','Model','LensModel','FNumber','ExposureTime','ISOSpeedRatings','FocalLength']
 
@@ -123,12 +126,13 @@
                 elif i==6:
                     cap[0] += '  L' + str(v) +'mm'
             return cap
-        
-        def clicked():
-            my_input=Element('img')
-            img_binary = base64.b64decode(my_input.element.src[23:])
+
+        @when("click", "#button")
+        def click_handler(event):
+            my_input=page["img"]
+            img_binary = base64.b64decode(my_input[0].src[23:])
             img_b64 = exif_print(img_binary)
-            my_input.element.src='data:image/jpeg;base64,' + img_b64
+            my_input[0].src='data:image/jpeg;base64,' + img_b64
         
         def exif_print(path):
             jpg = np.frombuffer(path,dtype=np.uint8)
