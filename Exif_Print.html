@@ -121,7 +121,7 @@
                         if (1.0/v)%1 == 0 :
                             cap[0] += '  SS1/' + str(1/v)
                         else:
-                            cap[0] += '  SS1/' + str(1.0/v)
+                            cap[0] += '  SS1/' + str('{:.1f}'.format(1.0/v))
                     else:
                         cap[0] += '  SS' + str(v)
                 elif i==5:
