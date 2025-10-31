@@ -196,7 +196,7 @@
                 sqimg = cv.copyMakeBorder(cv.rotate(composition_img,cv.ROTATE_90_CLOCKWISE),border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
             else:#正方形
                 border = fscale*4
-                l=h+border*2
+                l = h + border * 2
                 sqimg=cv.copyMakeBorder(composition_img,border,border,border,border,cv.BORDER_CONSTANT,value=b_color)
             
             face=cv.FONT_HERSHEY_SIMPLEX#フォント指定
@@ -211,7 +211,7 @@
                 else:
                     y= int((border/2+(size[1]-baseline)/2))
                 cv.putText(sqimg, n, (x,y), face, fratio, t_color, thickness, cv.LINE_AA)
-            if h>w:
+            if h > w:
                 result=cv.rotate(sqimg,cv.ROTATE_90_COUNTERCLOCKWISE)
             else:
                 result=sqimg
@@ -236,6 +236,7 @@
 </body>
 
 </html>
+
 
 
 
