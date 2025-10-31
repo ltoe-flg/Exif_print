@@ -167,7 +167,7 @@
         
             ifd_dict = load_exif(path)
             text_l,comp = caption(ifd_dict)
-        
+            display(np.shape(img))
             if comp == 1:
                 composition_img = img
             elif comp == 6:
@@ -176,6 +176,7 @@
                 composition_img = cv.rotate(img,cv.ROTATE_90_COUNTERCLOCKWISE)
 
             h,w,c = np.shape(composition_img)
+            display(np.shape(composition_img))
             gframe = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
             gratio = np.sum(gframe)/(h*w*255)
 
@@ -239,6 +240,7 @@
 </body>
 
 </html>
+
 
 
 
