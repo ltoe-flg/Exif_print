@@ -194,7 +194,7 @@
                 sqimg = cv.copyMakeBorder(img,border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
             elif W>h:
                 sqimg = cv.copyMakeBorder(cv.rotate(img,cv.ROTATE_90_CLOCKWISE),border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
-            else:#正方形
+            else:
                 border = fscale*4
                 l=h+border*2
                 sqimg=cv.copyMakeBorder(img,border,border,border,border,cv.BORDER_CONSTANT,value=b_color)
@@ -236,4 +236,5 @@
 </body>
 
 </html>
+
 
