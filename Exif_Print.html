@@ -123,25 +123,27 @@
                         cap[2]='{0[0]}/{0[1]}/{0[2]}'.format(v.split()[0].split(':'))
                     else:
                         cap[2]=v
-                elif i==1 or i==2:
-                    cap[1]+=v+' '
+                elif i==1:
+                    cap[1]+=v+'      '
+                elif i==2:
+                    cap[1]+=v
                 elif i==3:
-                    cap[0]='F' + str(v)
+                    cap[0]='F ' + str(v)
                 elif i==4:
                     if v=='-':
-                        cap[0] += '  SS' + v
-                    elif v < 1:
+                        cap[0] += '    SS ' + v
+                    elif v<1:
                         if (1.0/v)%1 == 0 :
-                            cap[0] += '  SS1/' + str(1/v)
+                            cap[0] += '    SS 1/' + str(1/v)
                         else:
-                            cap[0] += '  SS1/' + str('{:.1f}'.format(1.0/v))
+                            cap[0] += '    SS 1/' + str('{:.1f}'.format(1.0/v))
                     else:
-                        cap[0] += '  SS' + str(v)
+                        cap[0] += '    SS ' + str(v)
                 elif i==5:
-                    cap[0] += '  ISO' + str(v)
+                    cap[0] += '    ISO ' + str(v)
                 elif i==6:
-                    cap[0] += '  L' + str(v) +'mm'
-            return cap
+                    cap[0] += '    L ' + str(v) +'mm'
+            return cap,exf_dic[pic_info[7]]
 
         b64_header = 'data:image/jpeg;base64,'
         @when("click", "#button")
@@ -164,35 +166,58 @@
             img = cv.imdecode(jpg, cv.IMREAD_COLOR)
         
             ifd_dict = load_exif(path)
-            text_l = caption(ifd_dict)
+            text_l,comp = caption(ifd_dict)
         
-            h=img.shape[0]
-            face=cv.FONT_HERSHEY_SIMPLEX
-            if h < 1080:
-                fscale = int(1080*0.015)
+            if comp == 1:
+                composition_img = img
+            elif comp == 6:
+                composition_img = cv.rotate(img,cv.ROTATE_90_CLOCKWISE)
+            elif comp == 8:
+                composition_img = cv.rotate(img,cv.ROTATE_90_COUNTERCLOCKWISE)
+
+            h,w,c = np.shape(composition_img)
+            gframe = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
+            gratio = np.sum(gframe)/(h*w*255)
+
+            if gratio < 0.5:
+                b_color = (0,0,0)
+                t_color = (255,255,255)
             else:
-                fscale = int(h*0.015)
+                b_color = (255,255,255)
+                t_color = (0,0,0)
+
+            border = abs(w-h)//2
+            l = max(w,h)
+            fscale = int(l*0.012)#テキスト高さ指定
             
-            fratio = cv.getFontScaleFromHeight(face, fscale, 2)
-        
-            if fratio < 0.5:
-                thickness = 1
-                outline = 2
-            elif 0.5 <= fratio and fratio < 1:
-                thickness = 2
-                outline = 4
-            else:
-                thickness = 3
-                outline = 6
-            size, baseline = cv.getTextSize('A', face, fratio, thickness)
-            ubase = fscale - baseline
+            if h<w:#横構図
+                sqimg = cv.copyMakeBorder(img,border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
+            elif W>h:#縦構図
+                sqimg = cv.copyMakeBorder(cv.rotate(img,cv.ROTATE_90_CLOCKWISE),border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
+            else:#正方形
+                border = fscale*4
+                l=h+border*2
+                sqimg=cv.copyMakeBorder(img,border,border,border,border,cv.BORDER_CONSTANT,value=b_color)
+            
+            face=cv.FONT_HERSHEY_SIMPLEX#フォント指定
+            thickness = 3#フォント縁取り幅
+            fratio = cv.getFontScaleFromHeight(face, fscale, thickness)#フォントサイズ比算出
         
             for i,n in enumerate(text_l):
-                cv.putText(img, n, (ubase + 3, h-((fscale + ubase) * i + ubase + 3)), face, fratio, (64, 64, 64), thickness + outline, cv.LINE_AA)
-                cv.putText(img, n, (ubase + 3, h-((fscale + ubase) * i + ubase + 3)), face, fratio, (255, 255, 255), thickness, cv.LINE_AA)
-            
+                size, baseline = cv.getTextSize('y' + n + 'y', face, fratio, thickness)
+                x = int(l/2 - size[0]/2)
+                if i<2:
+                    y = int((l-border/2+(size[1]+baseline))-(size[1]+baseline*2)*i)
+                else:
+                    y= int((border/2+(size[1]-baseline)/2))
+                cv.putText(sqimg, n, (x,y), face, fratio, t_color, thickness, cv.LINE_AA)
+            if h>w:
+                result=cv.rotate(sqimg,cv.ROTATE_90_COUNTERCLOCKWISE)
+            else:
+                result=sqimg
+
             encord_param = [int(cv.IMWRITE_JPEG_QUALITY),98]
-            retval, buf = cv.imencode('.jpg', img, encord_param)
+            retval, buf = cv.imencode('.jpg', result, encord_param)
             img_str = base64.b64encode(buf).decode('ascii')
             return img_str
     </py-script>
