@@ -188,20 +188,20 @@
 
             border = abs(w-h)//2
             l = max(w,h)
-            fscale = int(l*0.012)#テキスト高さ指定
+            fscale = int(l*0.012)
             
-            if h<w:#横構図
+            if h<w:
                 sqimg = cv.copyMakeBorder(img,border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
-            elif W>h:#縦構図
+            elif W>h:
                 sqimg = cv.copyMakeBorder(cv.rotate(img,cv.ROTATE_90_CLOCKWISE),border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
             else:#正方形
                 border = fscale*4
                 l=h+border*2
                 sqimg=cv.copyMakeBorder(img,border,border,border,border,cv.BORDER_CONSTANT,value=b_color)
             
-            face=cv.FONT_HERSHEY_SIMPLEX#フォント指定
-            thickness = 3#フォント縁取り幅
-            fratio = cv.getFontScaleFromHeight(face, fscale, thickness)#フォントサイズ比算出
+            face=cv.FONT_HERSHEY_SIMPLEX
+            thickness = 3
+            fratio = cv.getFontScaleFromHeight(face, fscale, thickness)
         
             for i,n in enumerate(text_l):
                 size, baseline = cv.getTextSize('y' + n + 'y', face, fratio, thickness)
@@ -236,3 +236,4 @@
 </body>
 
 </html>
+
