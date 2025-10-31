@@ -167,6 +167,7 @@
         
             ifd_dict = load_exif(path)
             text_l,comp = caption(ifd_dict)
+            display(comp)
             display(np.shape(img))
             if comp == 1:
                 composition_img = img
@@ -240,6 +241,7 @@
 </body>
 
 </html>
+
 
 
 
