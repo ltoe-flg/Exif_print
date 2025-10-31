@@ -209,7 +209,7 @@
                 if i < 2:
                     y = int((l-border/2+(size[1]+baseline))-(size[1]+baseline*2)*i)
                 else:
-                    y　= int((border/2+(size[1]-baseline)/2))
+                    y = int((border/2+(size[1]-baseline)/2))
                 cv.putText(sqimg, n, (x,y), face, fratio, t_color, thickness, cv.LINE_AA)
             if h > w:
                 result=cv.rotate(sqimg,cv.ROTATE_90_COUNTERCLOCKWISE)
@@ -238,6 +238,7 @@
 </body>
 
 </html>
+
 
 
 
