@@ -211,11 +211,13 @@
                 else:
                     y= int((border/2+(size[1]-baseline)/2))
                 cv.putText(sqimg, n, (x,y), face, fratio, t_color, thickness, cv.LINE_AA)
+            
             if h > w:
                 result=cv.rotate(sqimg,cv.ROTATE_90_COUNTERCLOCKWISE)
+                display('BBBB')
             else:
                 result=sqimg
-                print('AAAA')
+                display('AAAA')
 
             encord_param = [int(cv.IMWRITE_JPEG_QUALITY),98]
             retval, buf = cv.imencode('.jpg', result, encord_param)
@@ -237,6 +239,7 @@
 </body>
 
 </html>
+
 
 
 
