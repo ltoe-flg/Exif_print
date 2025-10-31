@@ -191,13 +191,13 @@
             fscale = int(l*0.012)#テキスト高さ指定
             
             if h < w:
-                sqimg = cv.copyMakeBorder(img,border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
-            elif W > h:
-                sqimg = cv.copyMakeBorder(cv.rotate(img,cv.ROTATE_90_CLOCKWISE),border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
+                sqimg = cv.copyMakeBorder(composition_img,border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
+            elif h > w:
+                sqimg = cv.copyMakeBorder(cv.rotate(composition_img,cv.ROTATE_90_CLOCKWISE),border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
             else:#正方形
                 border = fscale*4
                 l=h+border*2
-                sqimg=cv.copyMakeBorder(img,border,border,border,border,cv.BORDER_CONSTANT,value=b_color)
+                sqimg=cv.copyMakeBorder(composition_img,border,border,border,border,cv.BORDER_CONSTANT,value=b_color)
             
             face=cv.FONT_HERSHEY_SIMPLEX#フォント指定
             thickness = 3#フォント縁取り幅
@@ -236,6 +236,7 @@
 </body>
 
 </html>
+
 
 
 
