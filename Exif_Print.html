@@ -165,10 +165,10 @@
         def exif_print(path):
             jpg = np.frombuffer(path,dtype=np.uint8)
             img = cv.imdecode(jpg, cv.IMREAD_COLOR)
-        
+            display('A')
             ifd_dict,exif_dict = load_exif(path)
             text_l,comp = caption(ifd_dict)
-        
+            display('B')
             if comp == 1:
                 composition_img = img
             elif comp == 6:
@@ -203,7 +203,7 @@
             face=cv.FONT_HERSHEY_SIMPLEX#フォント指定
             thickness = 3#フォント縁取り幅
             fratio = cv.getFontScaleFromHeight(face, fscale, thickness)#フォントサイズ比算出
-        
+            display('C')
             for i,n in enumerate(text_l):
                 size, baseline = cv.getTextSize('y' + n + 'y', face, fratio, thickness)
                 x = int(l/2 - size[0]/2)
@@ -238,6 +238,7 @@
 </body>
 
 </html>
+
 
 
 
