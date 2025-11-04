@@ -149,10 +149,12 @@
         b64_header = 'data:image/jpeg;base64,'
         @when("click", "#button")
         def click_handler(event):
+            display('aa')
             dl = page['a']
             my_input=page["img"]
             fb = page["input"]
             img_binary = base64.b64decode(my_input[0].src[len(b64_header):])
+            display('bb')
             img_b64 = exif_print(img_binary)
             my_input[0].src = b64_header + img_b64
             in_name = fb.value[0]
@@ -238,6 +240,7 @@
 </body>
 
 </html>
+
 
 
 
