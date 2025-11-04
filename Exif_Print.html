@@ -217,9 +217,8 @@
             else:
                 result=sqimg
 
+            display('ABCD')
             buffer = BytesIO()
-            #encord_param = [int(cv.IMWRITE_JPEG_QUALITY),98]
-            #retval, buf = cv.imencode('.jpg', result, encord_param)
             result.save(buffer,format='JPEG',quality=95,exif=piexif.dump(exif_dict))
             img_str = base64.b64encode(buffer.getvalue()).decode('ascii')
             return img_str
@@ -239,6 +238,7 @@
 </body>
 
 </html>
+
 
 
 
