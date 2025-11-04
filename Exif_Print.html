@@ -76,13 +76,12 @@
     </div>
     <py-config>
     {
-        "packages" : ["Pillow","opencv-python","numpy","piexif"]
+        "packages" : ["Pillow","opencv-python","numpy"]
     }
     </py-config>
     <py-script>
         from PIL import Image
         from PIL.ExifTags import TAGS, GPSTAGS
-        import piexif
         import cv2 as cv
         import numpy as np
         import base64
@@ -110,7 +109,7 @@
                 except:
                     ifd_dict.update({tag_id:value})
         
-            return ifd_dict,piexif.load(im.info['exif'])
+            return ifd_dict
         
         def caption(exf_dic):
             cap=['','','']
@@ -149,12 +148,10 @@
         b64_header = 'data:image/jpeg;base64,'
         @when("click", "#button")
         def click_handler(event):
-            display('aa')
             dl = page['a']
             my_input=page["img"]
             fb = page["input"]
             img_binary = base64.b64decode(my_input[0].src[len(b64_header):])
-            display('bb')
             img_b64 = exif_print(img_binary)
             my_input[0].src = b64_header + img_b64
             in_name = fb.value[0]
@@ -167,10 +164,10 @@
         def exif_print(path):
             jpg = np.frombuffer(path,dtype=np.uint8)
             img = cv.imdecode(jpg, cv.IMREAD_COLOR)
-            display('A')
-            ifd_dict,exif_dict = load_exif(path)
+        
+            ifd_dict = load_exif(path)
             text_l,comp = caption(ifd_dict)
-            display('B')
+
             if comp == 1:
                 composition_img = img
             elif comp == 6:
@@ -199,30 +196,29 @@
                 sqimg = cv.copyMakeBorder(cv.rotate(img,cv.ROTATE_90_CLOCKWISE),border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
             else:#正方形
                 border = fscale*4
-                l=h+border*2
+                l = h + border * 2
                 sqimg=cv.copyMakeBorder(img,border,border,border,border,cv.BORDER_CONSTANT,value=b_color)
             
             face=cv.FONT_HERSHEY_SIMPLEX#フォント指定
             thickness = 3#フォント縁取り幅
             fratio = cv.getFontScaleFromHeight(face, fscale, thickness)#フォントサイズ比算出
-            display('C')
+        
             for i,n in enumerate(text_l):
                 size, baseline = cv.getTextSize('y' + n + 'y', face, fratio, thickness)
                 x = int(l/2 - size[0]/2)
                 if i < 2:
                     y = int((l-border/2+(size[1]+baseline))-(size[1]+baseline*2)*i)
                 else:
-                    y= int((border/2+(size[1]-baseline)/2))
+                    y = int((border/2+(size[1]-baseline)/2))
                 cv.putText(sqimg, n, (x,y), face, fratio, t_color, thickness, cv.LINE_AA)
             if h > w:
                 result=cv.rotate(sqimg,cv.ROTATE_90_COUNTERCLOCKWISE)
             else:
                 result=sqimg
 
-            display('ABCD')
-            buffer = BytesIO()
-            result.save(buffer,format='JPEG',quality=95,exif=piexif.dump(exif_dict))
-            img_str = base64.b64encode(buffer.getvalue()).decode('ascii')
+            encord_param = [int(cv.IMWRITE_JPEG_QUALITY),98]
+            retval, buf = cv.imencode('.jpg', result, encord_param)
+            img_str = base64.b64encode(buf).decode('ascii')
             return img_str
     </py-script>
     <script>
@@ -240,25 +236,3 @@
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
