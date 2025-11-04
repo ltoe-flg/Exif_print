@@ -82,6 +82,7 @@
     <py-script>
         from PIL import Image
         from PIL.ExifTags import TAGS, GPSTAGS
+        import piexif
         import cv2 as cv
         import numpy as np
         import base64
@@ -109,7 +110,7 @@
                 except:
                     ifd_dict.update({tag_id:value})
         
-            return ifd_dict
+            return ifd_dict,piexif.load(im.info['exif'])
         
         def caption(exf_dic):
             cap=['','','']
@@ -165,9 +166,9 @@
             jpg = np.frombuffer(path,dtype=np.uint8)
             img = cv.imdecode(jpg, cv.IMREAD_COLOR)
         
-            ifd_dict = load_exif(path)
+            ifd_dict,exif_dict = load_exif(path)
             text_l,comp = caption(ifd_dict)
-
+        
             if comp == 1:
                 composition_img = img
             elif comp == 6:
@@ -196,7 +197,7 @@
                 sqimg = cv.copyMakeBorder(cv.rotate(img,cv.ROTATE_90_CLOCKWISE),border,border,0,0,cv.BORDER_CONSTANT,value=b_color)
             else:#正方形
                 border = fscale*4
-                l = h + border * 2
+                l=h+border*2
                 sqimg=cv.copyMakeBorder(img,border,border,border,border,cv.BORDER_CONSTANT,value=b_color)
             
             face=cv.FONT_HERSHEY_SIMPLEX#フォント指定
@@ -209,16 +210,18 @@
                 if i < 2:
                     y = int((l-border/2+(size[1]+baseline))-(size[1]+baseline*2)*i)
                 else:
-                    y = int((border/2+(size[1]-baseline)/2))
+                    y= int((border/2+(size[1]-baseline)/2))
                 cv.putText(sqimg, n, (x,y), face, fratio, t_color, thickness, cv.LINE_AA)
             if h > w:
                 result=cv.rotate(sqimg,cv.ROTATE_90_COUNTERCLOCKWISE)
             else:
                 result=sqimg
 
-            encord_param = [int(cv.IMWRITE_JPEG_QUALITY),98]
-            retval, buf = cv.imencode('.jpg', result, encord_param)
-            img_str = base64.b64encode(buf).decode('ascii')
+            buffer = BytesIO()
+            #encord_param = [int(cv.IMWRITE_JPEG_QUALITY),98]
+            #retval, buf = cv.imencode('.jpg', result, encord_param)
+            result.save(buffer,format='JPEG',quality=95,exif=piexif.dump(exif_dict))
+            img_str = base64.b64encode(buffer.getvalue()).decode('ascii')
             return img_str
     </py-script>
     <script>
@@ -236,6 +239,7 @@
 </body>
 
 </html>
+
 
 
 
